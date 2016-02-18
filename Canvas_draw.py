@@ -1,3 +1,5 @@
+#Ignore this file. This is a precursor to grass.py contains unused code
+
 from Tkinter import *
 from ttk import Frame, Button, Style
 from ttk import Entry
