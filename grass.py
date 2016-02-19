@@ -14,8 +14,8 @@ class Example(Frame):
     string_toggle=0
     divide_toggle=0
     ctrlpt1=[75,55]
-    ctrlpt2=[150,120]
-    ctrlpt3=[75,215]
+    ctrlpt2=[150,180]
+    ctrlpt3=[105,255]
     div_num = 10
 
 #initilise Frame then initialise this Example class using initUI() 
@@ -115,7 +115,7 @@ class Example(Frame):
                 self.draw_divide()
             if self.grass_toggle==1:       
                 self.grass_polygon()
-                self.w.create_polygon(0,215,400,215,400,400,0,400,fill='green')
+                self.w.create_polygon(0,255,400,255,400,400,0,400,fill='#A74A2A')
             if self.string_toggle==1:
                 self.string_art()
             if self.para_toggle==1:
@@ -152,39 +152,27 @@ class Example(Frame):
  
     def grass_polygon(self):
         lst=self.intersect_list()
-        for n in range(len(lst)-1):
-            width=5+10*(1-abs(1-2*(n+1)/float(len(lst))))
-            try:
+        pluslst2=[0]*(2*(len(lst)-1)-1)
+        minuslst2=[0]*(2*(len(lst)-1)-1)
+        pluslst2[0:1]=lst[0][1],lst[0][0]
+        minuslst2[0:1]=lst[0]
+        print minuslst2[0],pluslst2[0]
+        try:
+            for n in range(1,len(lst)-1):
+                width=2+10*(1-abs(1-2*(n+2)/float(len(lst))))
                 m1 = self.slope(lst[n],lst[n+1]) 
-                m = -1/self.slope(lst[n],lst[n+1])
+                m = -1/m1
                 dx = math.sqrt(width**2/(1+m**2))
                 dy = math.sqrt(width**2/(1+1/m**2))
-                x1=math.ceil(lst[n][0]-dx)
-                y1=math.ceil(lst[n][1]-dy)
-                x2=math.ceil(lst[n][0]+dx)
-                y2=math.ceil(lst[n][1]+dy)
-                x3=math.ceil(lst[n+1][0]+dx)
-                y3=math.ceil(lst[n+1][1]+dy)
-                x4=math.ceil(lst[n+1][0]-dx)
-                y4=math.ceil(lst[n+1][1]-dy)
-                if n==0:
-                    x2=x1=lst[n][0]
-                    y2=y1=lst[n][1]
-            except NameError:
-                dx = width/2
-                dy = 0
-                x1=math.ceil(lst[n][0]-dx)
-                y1=math.ceil(lst[n][1]-dy)
-                x2=math.ceil(lst[n][0]+dx)
-                y2=math.ceil(lst[n][1]+dy)
-                x3=math.ceil(lst[n+1][0]+dx)
-                y3=math.ceil(lst[n+1][1]+dy)
-                x4=math.ceil(lst[n+1][0]-dx)
-                y4=math.ceil(lst[n+1][1]-dy)
-                if n==0:
-                    x2=x1=lst[n][0]
-                    y2=y1=lst[n][1]   
-            self.w.create_polygon(x1,y1,x2,y2,x3,y3,x4,y4,fill='green')
+                minuslst2[2*n]=math.ceil(lst[n][0]-dx)
+                minuslst2[2*n+1]=math.ceil(lst[n][1]-dy)
+                pluslst2[2*n+1]=math.ceil(lst[n][0]+dx)
+                pluslst2[2*n]=math.ceil(lst[n][1]+dy)
+            pluslst2.reverse()    
+            self.w.create_polygon(minuslst2,pluslst2,fill='green')
+        except TypeError:
+            self.lbl1.config(text="Slope error")
+            
 
 #Standard slope function (Convert to matrix form maybe? also fix the perp line case)   
     
@@ -280,7 +268,7 @@ def main():
     app = Example(root)
     w=root.winfo_screenwidth()
     h=root.winfo_screenheight()
-    root.geometry("%rx%r+%r+%r" % (w//5,3*h//5,500,100))
+    root.geometry("%rx%r+%r+%r" % (w//3,h,500,100))
     root.mainloop() 
 
 #Start program!
