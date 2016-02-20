@@ -48,8 +48,10 @@ class Example(Frame):
 
     def draw(self):
         self.w.delete("all")
-        for n in range(len(self.grassdict)):
-            self.grassdict["grass"+str(n)].draw(self.w)
+        keys=self.grassdict.keys()
+        keys.sort()
+        for n in keys:
+            self.grassdict[n].draw(self.w)
         self.after(70,self.draw)
 
 class Grass(object):
@@ -209,12 +211,14 @@ def main():
     grassdict={}
     L=300
     for n in range(200):
-        [x3,y3] = [70+math.ceil(random.random()*315),L/2+math.ceil(random.random()*(668-L/2))]
-        [x2,y2] = [x3+math.ceil(random.uniform(-1,1)*50),y3-math.ceil(random.random()*L/float(2))]
+        [x3,y3] = [70+math.ceil(random.random()*315),
+                   L/2+math.ceil(random.random()*(668-L/2))]
+        [x2,y2] = [x3+math.ceil(random.uniform(-1,1)*50),
+                   y3-math.ceil(random.random()*L/float(2))]
         [x1,y1] = [x3-20,y3-math.ceil(random.random()*L/float(2))]
         freq=random.random()*0.1
         phase=random.random()*3.14
-        grassdict['grass'+str(n)]=Grass([x1,y1],[x2,y2],[x3,y3],freq,phase,start_time)
+        grassdict['{0:03}grass'.format(y3)]=Grass([x1,y1],[x2,y2],[x3,y3],freq,phase,start_time)
     print x1,y1,x2,y2,x3,y3
     root = Tk()
     app = Example(root,grassdict)
