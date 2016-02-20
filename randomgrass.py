@@ -10,6 +10,8 @@ class Example(Frame):
 #initilise Frame then initialise this Example class using initUI() 
     def __init__(self, parent,grassd):
         self.grassdict=grassd
+        self.keys=self.grassdict.keys()
+        self.keys.sort()
         start_time=time.time()
         Frame.__init__(self, parent)
         self.parent = parent
@@ -38,20 +40,21 @@ class Example(Frame):
         self.rowconfigure(5, pad=3)
         self.rowconfigure(6, pad=3)
 
-        w=self.winfo_screenwidth()
-        h=self.winfo_screenheight()
+        self.w=self.winfo_screenwidth()//3
+        self.h=self.winfo_screenheight()
+        print self.w,self.h
 
-        self.w = Canvas(self, width=w//3, height=h)
+        self.w = Canvas(self, width=self.w, height=self.h)
         self.w.grid(row=1, columnspan=4)
         self.after(70,self.draw)
         self.pack() 
 
     def draw(self):
         self.w.delete("all")
-        keys=self.grassdict.keys()
-        keys.sort()
-        for n in keys:
+        self.w.create_polygon(50,100,405,100,405,668,50,668,fill='#A74A2A')
+        for n in self.keys:
             self.grassdict[n].draw(self.w)
+  
         self.after(70,self.draw)
 
 class Grass(object):
@@ -210,21 +213,26 @@ def main():
     start_time=time.time()
     grassdict={}
     L=300
-    for n in range(200):
+    Lmin=100
+    try:
+        numgrass=int(raw_input("How many blades of grass?"))
+    except ValueError:
+        print "Enter a valid integer"
+    for n in range(numgrass):
         [x3,y3] = [70+math.ceil(random.random()*315),
-                   L/2+math.ceil(random.random()*(668-L/2))]
+                   L/2+math.ceil(random.random()*(668-L/float(2)))]
         [x2,y2] = [x3+math.ceil(random.uniform(-1,1)*50),
-                   y3-math.ceil(random.random()*L/float(2))]
-        [x1,y1] = [x3-20,y3-math.ceil(random.random()*L/float(2))]
+                   y3-Lmin/2-math.ceil(random.random()*(L-Lmin)/float(2))]
+        [x1,y1] = [x3-20,y3-Lmin/2-math.ceil(random.random()*(L-Lmin)/float(2))]
         freq=random.random()*0.1
         phase=random.random()*3.14
-        grassdict['{0:03}grass'.format(y3)]=Grass([x1,y1],[x2,y2],[x3,y3],freq,phase,start_time)
-    print x1,y1,x2,y2,x3,y3
+        grassdict['{0:03}{1:03}grass'.format(y3,x3)]=Grass([x1,y1],[x2,y2],[x3,y3],freq,phase,start_time)
+    print len(grassdict)
     root = Tk()
     app = Example(root,grassdict)
     w=root.winfo_screenwidth()
     h=root.winfo_screenheight()
-    root.geometry("%rx%r+%r+%r" % (w//3,h-100,500,100))
+    root.geometry("%rx%r+%r+%r" % (w//3,h,500,100))
     root.mainloop() 
 
 
