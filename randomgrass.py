@@ -1,3 +1,19 @@
+#------------------------------------randomgrass.py------------------------------
+#
+#       Based on the Pixar course on Khan academy
+#
+#       Using the basics of parabola construction N blades of grass are
+#       initialised with random positions and sway with a random frequency and  
+#       phase
+#
+#       Tkinter was used as the GUI
+#
+#       The Grass class takes three points which define the parabola, starting
+#       phase, frequency, and the time at the start of the program.
+#
+#
+#---------------------------------------------------------------------------------
+
 from Tkinter import *
 from ttk import Frame, Button, Style
 from ttk import Entry
@@ -9,6 +25,8 @@ class Example(Frame):
 
 #initilise Frame then initialise this Example class using initUI() 
     def __init__(self, parent,grassd):
+        self.para_toggle=0
+        self.str_toggle=0
         self.grassdict=grassd
         self.keys=self.grassdict.keys()
         self.keys.sort()
@@ -27,10 +45,10 @@ class Example(Frame):
         Style().configure("TButton", padding=(0, 5, 0, 5), 
             font='serif 10')
         
-        self.columnconfigure(0, pad=3)
-        self.columnconfigure(1, pad=3)
-        self.columnconfigure(2, pad=3)
-        self.columnconfigure(3, pad=3)
+        self.columnconfigure(0, pad=1)
+        self.columnconfigure(1, pad=1)
+        self.columnconfigure(2, pad=1)
+        self.columnconfigure(3, pad=1)
         
         self.rowconfigure(0, pad=3)
         self.rowconfigure(1, pad=3)
@@ -40,6 +58,17 @@ class Example(Frame):
         self.rowconfigure(5, pad=3)
         self.rowconfigure(6, pad=3)
 
+#Initialise buttons on frame and canvas
+
+        Wind = Button(self, text="Whoosh", command=self.wind_gust)
+        Wind.grid(row = 0, column = 0,columnspan=2)
+
+        strart = Button(self, text="Strings", command=self.toggle_strart)
+        strart.grid(row = 0, column = 1,columnspan=2)
+             
+        plotpar = Button(self, text="Parabola", command=self.toggle_para)
+        plotpar.grid(row = 0, column = 2,columnspan=2)
+
         self.w=self.winfo_screenwidth()//3
         self.h=self.winfo_screenheight()
         print self.w,self.h
@@ -47,15 +76,52 @@ class Example(Frame):
         self.w = Canvas(self, width=self.w, height=self.h)
         self.w.grid(row=1, columnspan=4)
         self.after(70,self.draw)
-        self.pack() 
+        self.pack()
+
+#Toggles for various parts of the grass
+   
+    def toggle_para(self):
+        self.para_toggle=(self.para_toggle+1)%2
+        if self.str_toggle == 1:
+            self.str_toggle = 0
+
+    def toggle_strart(self):
+        self.str_toggle=(self.str_toggle+1)%2
+        if self.para_toggle == 1:
+            self.para_toggle = 0
+
+#Wind 'pushes' all grass to one side
+    
+    def wind_gust(self):
+        for n in self.grassdict:
+            self.grassdict[n].start_time=time.time()
+            self.grassdict[n].phase=3.14/2
+
+#draw grass on canvas
 
     def draw(self):
         self.w.delete("all")
         self.w.create_polygon(50,100,405,100,405,668,50,668,fill='#A74A2A')
-        for n in self.keys:
-            self.grassdict[n].draw(self.w)
+
+        if self.para_toggle == 1:
+            for n in self.keys:
+                self.grassdict[n].draw(self.w)
+                self.grassdict[n].plot_para(self.w)    
+    
+        elif self.str_toggle == 1:
+            for n in self.keys:
+                self.grassdict[n].draw(self.w)
+                self.grassdict[n].string_art(self.w) 
+                self.grassdict[n].draw_ctrl(self.w)
+      
+                    
+        else:
+            for n in self.keys:
+                self.grassdict[n].draw(self.w)
+        
+            
   
-        self.after(70,self.draw)
+        self.after(35,self.draw)
 
 class Grass(object):
 
@@ -77,10 +143,30 @@ class Grass(object):
 #Main function that draws the grass then reinitialises the after method on the Frame
 
     def draw(self,canvas):  
-            newx=self.ctrlpt1x+50*math.sin(self.phase+3.14*(0.1+self.f)*(self.start_time-time.time()))
-            self.ctrlpt1=[newx,self.ctrlpt1y]  
+            self.currentx=self.ctrlpt1x+50*math.sin(self.phase+3.14*(0.1+self.f)
+                                           *(self.start_time-time.time())
+                                          )
+            self.ctrlpt1=[self.currentx,self.ctrlpt1y]  
             self.grass_polygon(canvas)
 
+
+    def draw_ctrl(self,canvas):
+        cnv=canvas
+        cnv.create_oval(
+                           self.ctrlpt1[0] - 2, self.ctrlpt1[1] - 2, 
+                           self.ctrlpt1[0] + 2, self.ctrlpt1[1] + 2,
+                           fill="black"
+                          )
+        cnv.create_oval(
+                           self.ctrlpt2[0] - 2, self.ctrlpt2[1] - 2, 
+                           self.ctrlpt2[0] + 2, self.ctrlpt2[1] + 2,
+                           fill="black"
+                          )
+        cnv.create_oval(
+                           self.ctrlpt3[0] - 2, self.ctrlpt3[1] - 2, 
+                           self.ctrlpt3[0] + 2, self.ctrlpt3[1] + 2,
+                           fill="black"
+                          )    
 
 #Draws the positions of each division
 
@@ -155,7 +241,7 @@ class Grass(object):
     def plot_para(self,canvas):
         cnv = canvas
         plotlist=self.intersect_list()
-        for n in range(len(plotlist)):  
+        for n in range(len(plotlist)-1):  
             cnv.create_oval(
                                 plotlist[n][0]-2, plotlist[n][1]-2, 
                                 plotlist[n][0]+2, plotlist[n][1]+2,fill="black"

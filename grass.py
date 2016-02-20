@@ -123,11 +123,11 @@ class Example(Frame):
             newx=self.ctrlpt1x+50*math.sin(3.14*0.5*(self.start_time-time.time()))
             self.ctrlpt1=[newx,55]
             self.w.delete("all")
-            if self.divide_toggle==1:
-                self.draw_divide()
             if self.grass_toggle==1:       
                 self.grass_polygon()
                 self.w.create_polygon(0,235,400,235,400,400,0,400,fill='#A74A2A')
+            if self.divide_toggle==1:
+                self.draw_divide()           
             if self.string_toggle==1:
                 self.string_art()
             if self.para_toggle==1:
@@ -163,7 +163,6 @@ class Example(Frame):
 #Draws the positions of each division
 
     def draw_divide(self):
-        self.w.delete("all")
         list1=self.divide_line(self.ctrlpt1,self.ctrlpt2)
         for n in range(len(list1)):  
             self.w.create_oval(
